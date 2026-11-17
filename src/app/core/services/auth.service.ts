@@ -23,10 +23,12 @@ export class AuthService {
     const userStr = localStorage.getItem('user');
     const condoStr = localStorage.getItem('active_condo');
     const permsStr = localStorage.getItem('permissions');
+    const condosStr = localStorage.getItem('condominios');
 
     if (userStr) this.currentUser.set(JSON.parse(userStr));
     if (condoStr) this.activeCondominio.set(JSON.parse(condoStr));
     if (permsStr) this.userPermissions.set(JSON.parse(permsStr));
+    if (condosStr) this.condominios.set(JSON.parse(condosStr));
   }
 
   login(ci: string, password: string):Observable<any> {
@@ -38,6 +40,7 @@ export class AuthService {
           localStorage.setItem('refresh_token', tokens.refreshToken);
           localStorage.setItem('user', JSON.stringify(usuario));
           localStorage.setItem('permissions', JSON.stringify(permisos));
+          localStorage.setItem('condominios', JSON.stringify(condominios));
 
           this.currentUser.set(usuario);
           this.condominios.set(condominios);

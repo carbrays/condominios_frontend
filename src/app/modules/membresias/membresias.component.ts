@@ -20,6 +20,42 @@ import { AuthService } from '../../core/services/auth.service';
         </button>
       </div>
 
+      <!-- BARRA DE FILTROS Y RESUMEN -->
+      <div class="filters-bar">
+        <div class="search-input-wrap">
+          <input 
+            type="text" 
+            [(ngModel)]="filtroBusqueda" 
+            placeholder="🔍 Buscar por nombre, CI o rol..." 
+            class="form-control"
+          />
+        </div>
+
+        <div class="status-filters">
+          <button 
+            type="button" 
+            class="filter-chip" 
+            [class.active]="filtroEstado === 'TODOS'" 
+            (click)="filtroEstado = 'TODOS'">
+            Todos ({{ membresias.length }})
+          </button>
+          <button 
+            type="button" 
+            class="filter-chip chip-active" 
+            [class.active]="filtroEstado === 'ACTIVO'" 
+            (click)="filtroEstado = 'ACTIVO'">
+            Activos ({{ totalActivos }})
+          </button>
+          <button 
+            type="button" 
+            class="filter-chip chip-suspended" 
+            [class.active]="filtroEstado === 'SUSPENDIDO'" 
+            (click)="filtroEstado = 'SUSPENDIDO'">
+            Suspendidos ({{ totalSuspendidos }})
+          </button>
+        </div>
+      </div>
+
       <!-- TABLA DE MEMBRESÍAS -->
       <div class="card table-card">
         <div *ngIf="loading" class="loading-state">Cargando membresías...</div>
@@ -37,7 +73,7 @@ import { AuthService } from '../../core/services/auth.service';
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let m of membresias">
+            <tr *ngFor="let m of membresiasFiltradas">
               <td>
                 <div class="user-name">{{ m.nombres }} {{ m.apellidos }}</div>
                 <small class="user-sub">Usuario #{{ m.usuario_id }}</small>
@@ -61,14 +97,15 @@ import { AuthService } from '../../core/services/auth.service';
               <td>
                 <button 
                   class="btn-sm" 
+                  [disabled]="m._loading"
                   [ngClass]="m.estado === 'ACTIVO' ? 'btn-danger-outline' : 'btn-success-outline'"
                   (click)="toggleEstado(m)">
-                  {{ m.estado === 'ACTIVO' ? 'Suspender' : 'Activar' }}
+                  {{ m._loading ? 'Procesando...' : (m.estado === 'ACTIVO' ? 'Suspender' : 'Activar') }}
                 </button>
               </td>
             </tr>
-            <tr *ngIf="membresias.length === 0">
-              <td colspan="7" class="empty-state">No hay miembros registrados en este condominio.</td>
+            <tr *ngIf="membresiasFiltradas.length === 0">
+              <td colspan="7" class="empty-state">No se encontraron miembros registrados para el filtro seleccionado.</td>
             </tr>
           </tbody>
         </table>
@@ -136,7 +173,18 @@ import { AuthService } from '../../core/services/auth.service';
                 </button>
               </div>
 
-              <!-- PASO 2: SELECCIONAR ROL -->
+              <!-- PASO 2 (SUPER_ADMIN): SELECCIONAR CONDOMINIO DESTINO -->
+              <div class="form-group" *ngIf="isSuperAdmin" style="margin-top: 16px;">
+                <label>🏢 Condominio Destino *</label>
+                <select [(ngModel)]="selectedCondominioId" name="selectedCondominioId" class="form-control" required>
+                  <option [ngValue]="null" disabled>— Seleccionar condominio —</option>
+                  <option *ngFor="let c of todosCondominios" [ngValue]="c.id">
+                    {{ c.nombre }} ({{ c.ciudad || 'Sin ciudad' }}) — {{ c.estado }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- PASO 3: SELECCIONAR ROL -->
               <div class="form-group" style="margin-top: 16px;">
                 <label>Rol que desempeñará en este Condominio *</label>
                 <select [(ngModel)]="selectedRol" name="selectedRol" class="form-control" required>
@@ -165,6 +213,14 @@ import { AuthService } from '../../core/services/auth.service';
     .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
     .page-header h1 { font-size: 24px; color: #0f172a; margin: 0 0 4px 0; font-weight: 700; }
     .subtitle { color: #64748B; margin: 0; font-size: 14px; }
+    .filters-bar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+    .search-input-wrap { flex: 1; max-width: 380px; }
+    .status-filters { display: flex; gap: 8px; }
+    .filter-chip { padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; border: 1px solid #cbd5e1; background: white; color: #475569; cursor: pointer; transition: all 0.2s; }
+    .filter-chip:hover { background: #f8fafc; }
+    .filter-chip.active { background: #1e3a8a; color: white; border-color: #1e3a8a; }
+    .filter-chip.chip-active.active { background: #166534; border-color: #166534; color: white; }
+    .filter-chip.chip-suspended.active { background: #991b1b; border-color: #991b1b; color: white; }
     .card { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; }
     .data-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
     .data-table th { background: #f8fafc; padding: 14px 16px; color: #475569; font-weight: 600; border-bottom: 1px solid #e2e8f0; }
@@ -218,6 +274,7 @@ export class MembresiasComponent implements OnInit {
   auth = inject(AuthService);
 
   membresias: any[] = [];
+  todosCondominios: any[] = [];
   loading = false;
   showModal = false;
   saving = false;
@@ -225,10 +282,14 @@ export class MembresiasComponent implements OnInit {
   errorMsg = '';
   successMsg = '';
 
+  filtroEstado = 'TODOS';
+  filtroBusqueda = '';
+
   ciBusqueda = '';
   personaEncontrada: any = null;
   mostrarRegistroPersona = false;
   selectedRol = 'CONSERJE';
+  selectedCondominioId: number | null = null;
 
   nuevaPersona = {
     nombres: '',
@@ -238,8 +299,35 @@ export class MembresiasComponent implements OnInit {
     email: ''
   };
 
+  get membresiasFiltradas(): any[] {
+    return this.membresias.filter(m => {
+      const coincideEstado = this.filtroEstado === 'TODOS' || m.estado === this.filtroEstado;
+      const busq = this.filtroBusqueda.toLowerCase().trim();
+      const coincideBusq = !busq || 
+        `${m.nombres || ''} ${m.apellidos || ''}`.toLowerCase().includes(busq) ||
+        (m.ci && m.ci.toLowerCase().includes(busq)) ||
+        (m.rol_id && m.rol_id.toLowerCase().includes(busq));
+      return coincideEstado && coincideBusq;
+    });
+  }
+
+  get totalActivos(): number {
+    return this.membresias.filter(m => m.estado === 'ACTIVO').length;
+  }
+
+  get totalSuspendidos(): number {
+    return this.membresias.filter(m => m.estado === 'SUSPENDIDO').length;
+  }
+
   ngOnInit() {
     this.cargarMembresias();
+    if (this.isSuperAdmin) {
+      this.cargarTodosCondominios();
+    }
+  }
+
+  get isSuperAdmin(): boolean {
+    return this.auth.activeCondominio()?.rol_id === 'SUPER_ADMIN';
   }
 
   cargarMembresias() {
@@ -256,6 +344,18 @@ export class MembresiasComponent implements OnInit {
     });
   }
 
+  cargarTodosCondominios() {
+    this.api.getCondominios(1, 200).subscribe({
+      next: (res) => {
+        this.todosCondominios = Array.isArray(res) ? res : (res?.items || []);
+        // Pre-seleccionar el condominio activo
+        const activo = this.auth.getActiveCondominioId();
+        if (activo) this.selectedCondominioId = activo;
+      },
+      error: (err) => console.error(err)
+    });
+  }
+
   openModal() {
     this.errorMsg = '';
     this.successMsg = '';
@@ -263,6 +363,7 @@ export class MembresiasComponent implements OnInit {
     this.personaEncontrada = null;
     this.mostrarRegistroPersona = false;
     this.selectedRol = 'CONSERJE';
+    this.selectedCondominioId = this.auth.getActiveCondominioId();
     this.showModal = true;
   }
 
@@ -310,13 +411,23 @@ export class MembresiasComponent implements OnInit {
       return;
     }
 
+    const condominioId = this.isSuperAdmin
+      ? this.selectedCondominioId
+      : this.auth.getActiveCondominioId();
+
+    if (!condominioId) {
+      this.errorMsg = 'Debes seleccionar un condominio destino';
+      return;
+    }
+
     this.saving = true;
     this.errorMsg = '';
 
     // Asignar membresía: usuario_id es personaEncontrada.usuario_id o personaEncontrada.id
     const payload = {
       usuario_id: this.personaEncontrada.usuario_id || this.personaEncontrada.id,
-      rol_id: this.selectedRol
+      rol_id: this.selectedRol,
+      condominio_id: condominioId
     };
 
     this.api.asignarMembresia(payload).subscribe({
@@ -333,10 +444,28 @@ export class MembresiasComponent implements OnInit {
   }
 
   toggleEstado(m: any) {
+    if (m.usuario_id === this.auth.currentUser()?.id) {
+      alert('No puedes suspender tu propia membresía activa en este condominio.');
+      return;
+    }
+
+    const accion = m.estado === 'ACTIVO' ? 'suspender' : 'activar';
     const nuevoEstado = m.estado === 'ACTIVO' ? 'SUSPENDIDO' : 'ACTIVO';
+
+    if (!confirm(`¿Estás seguro de que deseas ${accion} la membresía de ${m.nombres} ${m.apellidos}?`)) {
+      return;
+    }
+
+    m._loading = true;
     this.api.cambiarEstadoMembresia(m.id, nuevoEstado).subscribe({
-      next: () => this.cargarMembresias(),
-      error: (err) => alert(err?.error?.message || 'Error al cambiar estado')
+      next: () => {
+        m._loading = false;
+        this.cargarMembresias();
+      },
+      error: (err) => {
+        m._loading = false;
+        alert(err?.error?.message || 'Error al cambiar estado de la membresía');
+      }
     });
   }
 }
