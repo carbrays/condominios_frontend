@@ -1,1 +1,345 @@
-/* You can add global styles to this file, and also import other style files */
+/* ==========================================================================
+   CONDOCORE DESIGN SYSTEM - ESTILOS GLOBALES
+   Inspirado en el prototipo v2.4 Pro (Google Sites)
+   ========================================================================== */
+
+:root {
+  /* Paleta Base */
+  --primary: #0f172a;        /* Slate 900 - Sidebar, textos principales, encabezados */
+  --primary-hover: #1e293b;  /* Slate 800 */
+  --accent: #10b981;         /* Emerald 500 - Botones principales, ingresos, tags activos */
+  --accent-hover: #059669;   /* Emerald 600 */
+  --accent-light: #d1fae5;   /* Emerald 100 */
+  --accent-dark: #065f46;    /* Emerald 800 */
+  
+  --surface: #f8fafc;        /* Slate 50 - Fondo global */
+  --surface-alt: #f1f5f9;    /* Slate 100 */
+  --card: #ffffff;           /* Blanco puro */
+  
+  --border: #e2e8f0;         /* Slate 200 - Bordes base */
+  --border-hover: #cbd5e1;   /* Slate 300 */
+  
+  --ink: #0f172a;            /* Slate 900 */
+  --muted: #64748b;          /* Slate 500 */
+  --muted-light: #94a3b8;    /* Slate 400 */
+  
+  /* Semánticos */
+  --danger: #ef4444;         /* Red 500 - Morosos, egresos, alertas */
+  --danger-light: #fee2e2;   /* Red 100 */
+  --danger-text: #b91c1c;    /* Red 700 */
+  
+  --warning: #f59e0b;        /* Amber 500 */
+  --warning-light: #fef3c7;  /* Amber 100 */
+  --warning-text: #b45309;   /* Amber 700 */
+  
+  --info: #3b82f6;           /* Blue 500 */
+  --info-light: #e0f2fe;     /* Blue 100 */
+  --info-text: #0369a1;      /* Blue 700 */
+  
+  /* Tipografías */
+  --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+
+  /* Sombras */
+  --soft-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+  --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+  --elevated-shadow: 0 10px 25px -3px rgba(15, 23, 42, 0.08);
+}
+
+/* Reset y Base */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--surface);
+  color: var(--ink);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6, .font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+/* Scrollbars modernos */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Botones */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 16px;
+  font-size: 13.5px;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  border: 1px solid transparent;
+  outline: none;
+  white-space: nowrap;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+}
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+  border-color: var(--primary-hover);
+}
+
+.btn-accent {
+  background-color: var(--accent);
+  color: #ffffff;
+  border-color: var(--accent);
+}
+.btn-accent:hover {
+  background-color: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+.btn-outline {
+  background-color: #ffffff;
+  color: #334155;
+  border-color: var(--border);
+}
+.btn-outline:hover {
+  background-color: var(--surface-alt);
+  border-color: var(--border-hover);
+  color: var(--ink);
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 12.5px;
+  border-radius: 8px;
+}
+
+/* Badges & Chips */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.badge-accent {
+  background-color: var(--accent-light);
+  color: var(--accent-dark);
+}
+
+.badge-danger {
+  background-color: var(--danger-light);
+  color: var(--danger-text);
+}
+
+.badge-warning {
+  background-color: var(--warning-light);
+  color: var(--warning-text);
+}
+
+.badge-info {
+  background-color: var(--info-light);
+  color: var(--info-text);
+}
+
+.badge-slate {
+  background-color: var(--surface-alt);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+.badge-rf {
+  background-color: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+  font-family: monospace;
+  font-size: 11px;
+}
+
+/* Cards & Contenedores */
+.ui-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--card-shadow);
+  padding: 24px;
+}
+
+.kpi-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--card-shadow);
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kpi-card:hover {
+  box-shadow: var(--soft-shadow);
+  transform: translateY(-1px);
+}
+
+/* Inputs y Selects */
+.ui-input, .ui-select {
+  padding: 8px 14px;
+  background-color: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--ink);
+  font-size: 13.5px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  font-family: inherit;
+}
+
+.ui-input:focus, .ui-select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* ==========================================================================
+   BUSCADORES UNIFICADOS CON BOTÓN LIMPIAR (SIN DESFASES)
+   ========================================================================== */
+
+.search-box-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.search-box-container .search-icon-left {
+  position: absolute;
+  left: 12px;
+  color: #94a3b8;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.clean-search-input {
+  width: 100%;
+  height: 38px;
+  background-color: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0 36px 0 36px !important;
+  font-size: 13px;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.clean-search-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.clean-search-input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.clean-clear-btn {
+  position: absolute;
+  right: 10px;
+  width: 20px;
+  height: 20px;
+  background: #e2e8f0;
+  border: none;
+  border-radius: 9999px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0;
+  z-index: 2;
+  transition: all 0.15s ease;
+}
+
+.clean-clear-btn:hover {
+  background: #cbd5e1;
+  color: #0f172a;
+}
+
+/* Tablas */
+.table-container {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+}
+
+.ui-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 13px;
+}
+
+.ui-table th {
+  background-color: #f8fafc;
+  padding: 12px 18px;
+  font-weight: 600;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  text-transform: uppercase;
+  font-size: 11.5px;
+  letter-spacing: 0.05em;
+}
+
+.ui-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+  vertical-align: middle;
+}
+
+.ui-table tr:last-child td {
+  border-bottom: none;
+}
+
+.ui-table tr:hover td {
+  background-color: #f8fafc;
+}

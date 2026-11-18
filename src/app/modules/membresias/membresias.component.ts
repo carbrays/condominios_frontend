@@ -23,12 +23,23 @@ import { AuthService } from '../../core/services/auth.service';
       <!-- BARRA DE FILTROS Y RESUMEN -->
       <div class="filters-bar">
         <div class="search-input-wrap">
-          <input 
-            type="text" 
-            [(ngModel)]="filtroBusqueda" 
-            placeholder="🔍 Buscar por nombre, CI o rol..." 
-            class="form-control"
-          />
+          <div class="search-box-container">
+            <span class="search-icon-left" style="font-size: 13px;">🔍</span>
+            <input 
+              type="search" 
+              [(ngModel)]="filtroBusqueda" 
+              placeholder="Buscar por nombre, CI o rol..." 
+              class="clean-search-input"
+            />
+            <button 
+              *ngIf="filtroBusqueda" 
+              type="button" 
+              class="clean-clear-btn" 
+              (click)="filtroBusqueda = ''"
+              title="Borrar búsqueda">
+              ✕
+            </button>
+          </div>
         </div>
 
         <div class="status-filters">
@@ -127,9 +138,27 @@ import { AuthService } from '../../core/services/auth.service';
               <div class="form-group">
                 <label>Buscar Persona por Cédula de Identidad (CI) *</label>
                 <div class="input-with-button">
-                  <input type="text" [(ngModel)]="ciBusqueda" name="ciBusqueda" class="form-control" placeholder="Ej. 3000003" required />
+                  <div class="search-box-container" style="flex: 1;">
+                    <span class="search-icon-left" style="font-size: 13px;">🔍</span>
+                    <input 
+                      type="search" 
+                      [(ngModel)]="ciBusqueda" 
+                      name="ciBusqueda" 
+                      class="clean-search-input" 
+                      placeholder="Ej. 3000003" 
+                      required 
+                    />
+                    <button 
+                      *ngIf="ciBusqueda" 
+                      type="button" 
+                      class="clean-clear-btn" 
+                      (click)="ciBusqueda = ''; personaEncontrada = null; mostrarRegistroPersona = false"
+                      title="Borrar CI">
+                      ✕
+                    </button>
+                  </div>
                   <button type="button" class="btn btn-secondary" (click)="buscarPorCI()" [disabled]="buscando">
-                    {{ buscando ? 'Buscando...' : '🔍 Buscar' }}
+                    {{ buscando ? 'Buscando...' : 'Buscar' }}
                   </button>
                 </div>
               </div>

@@ -6,6 +6,10 @@ export interface Persona {
   apellidos: string;
   email?: string;
   telefono?: string;
+  fecha_nacimiento?: string;
+  direccion_alternativa?: string;
+  usuario_id?: number;
+  usuario_activo?: boolean;
 }
 
 export interface Usuario {

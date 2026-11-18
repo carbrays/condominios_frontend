@@ -34,12 +34,30 @@ export class ApiService {
   }
 
   // Unidades & Asignaciones
-  getUnidades(page = 1, limit = 50): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/unidades?page=${page}&limit=${limit}`).pipe(map(r => r.data));
+  getUnidades(page = 1, limit = 50, search = ''): Observable<any> {
+    let url = `${this.baseUrl}/unidades?page=${page}&limit=${limit}`;
+    if (search) url += `&search=${encodeURIComponent(search)}`;
+    return this.http.get<any>(url).pipe(map(r => r.data));
   }
 
   crearUnidad(data: any): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/unidades`, data).pipe(map(r => r.data));
+  }
+
+  actualizarUnidad(id: number, data: any): Observable<any> {
+    return this.http.put<any>(`${this.baseUrl}/unidades/${id}`, data).pipe(map(r => r.data));
+  }
+
+  eliminarUnidad(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.baseUrl}/unidades/${id}`).pipe(map(r => r.data));
+  }
+
+  getTiposUnidad(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/unidades/tipos`).pipe(map(r => r.data));
+  }
+
+  getBloques(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/unidades/bloques`).pipe(map(r => r.data));
   }
 
   asignarPropietario(data: any): Observable<any> {
@@ -51,9 +69,9 @@ export class ApiService {
   }
 
   // Personas
-  getPersonas(search = ''): Observable<any> {
-    let url = `${this.baseUrl}/personas`;
-    if (search) url += `?search=${encodeURIComponent(search)}`;
+  getPersonas(page = 1, limit = 50, search = ''): Observable<any> {
+    let url = `${this.baseUrl}/personas?page=${page}&limit=${limit}`;
+    if (search) url += `&search=${encodeURIComponent(search)}`;
     return this.http.get<any>(url).pipe(map(r => r.data));
   }
 
@@ -63,6 +81,14 @@ export class ApiService {
 
   crearPersona(data: any): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/personas`, data).pipe(map(r => r.data));
+  }
+
+  actualizarPersona(id: number, data: any): Observable<any> {
+    return this.http.put<any>(`${this.baseUrl}/personas/${id}`, data).pipe(map(r => r.data));
+  }
+
+  eliminarPersona(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.baseUrl}/personas/${id}`).pipe(map(r => r.data));
   }
 
   // Membresías
@@ -113,21 +139,65 @@ export class ApiService {
     return this.http.get<any>(`${this.baseUrl}/conserjeria/visitas?activas=true`).pipe(map(r => r.data));
   }
 
+  getTodasVisitas(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/conserjeria/visitas`).pipe(map(r => r.data));
+  }
+
+  registrarVisita(data: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/conserjeria/visitas`, data).pipe(map(r => r.data));
+  }
+
+  registrarSalidaVisita(id: number): Observable<any> {
+    return this.http.patch<any>(`${this.baseUrl}/conserjeria/visitas/${id}/salida`, {}).pipe(map(r => r.data));
+  }
+
+  eliminarVisita(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.baseUrl}/conserjeria/visitas/${id}`).pipe(map(r => r.data));
+  }
+
   getPaqueteria(): Observable<any> {
     return this.http.get<any>(`${this.baseUrl}/conserjeria/paqueteria`).pipe(map(r => r.data));
+  }
+
+  registrarPaquete(data: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/conserjeria/paqueteria`, data).pipe(map(r => r.data));
+  }
+
+  entregarPaquete(id: number, entregadoA: string = 'Destinatario'): Observable<any> {
+    return this.http.patch<any>(`${this.baseUrl}/conserjeria/paqueteria/${id}/entregar`, { entregado_a: entregadoA }).pipe(map(r => r.data));
+  }
+
+  eliminarPaquete(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.baseUrl}/conserjeria/paqueteria/${id}`).pipe(map(r => r.data));
   }
 
   validarQR(codigoSeguro: string): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/conserjeria/qr/validar`, { codigo_seguro: codigoSeguro }).pipe(map(r => r.data));
   }
 
-  // Reservas
+  // Reservas & Áreas Comunes
   getReservas(): Observable<any> {
     return this.http.get<any>(`${this.baseUrl}/reservas`).pipe(map(r => r.data));
   }
 
+  crearReserva(data: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/reservas`, data).pipe(map(r => r.data));
+  }
+
+  cancelarReserva(id: number, motivo: string = 'Cancelado por administración'): Observable<any> {
+    return this.http.patch<any>(`${this.baseUrl}/reservas/${id}/cancelar`, { motivo }).pipe(map(r => r.data));
+  }
+
   getAreasComunes(): Observable<any> {
     return this.http.get<any>(`${this.baseUrl}/reservas/areas`).pipe(map(r => r.data));
+  }
+
+  crearAreaComun(data: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/reservas/areas`, data).pipe(map(r => r.data));
+  }
+
+  eliminarAreaComun(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.baseUrl}/reservas/areas/${id}`).pipe(map(r => r.data));
   }
 
   // Incidencias
@@ -135,16 +205,62 @@ export class ApiService {
     return this.http.get<any>(`${this.baseUrl}/incidencias`).pipe(map(r => r.data));
   }
 
+  getIncidenciaDetalle(id: number): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/incidencias/${id}`).pipe(map(r => r.data));
+  }
+
+  crearIncidencia(data: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/incidencias`, data).pipe(map(r => r.data));
+  }
+
   actualizarEstadoIncidencia(id: number, estado: string): Observable<any> {
     return this.http.patch<any>(`${this.baseUrl}/incidencias/${id}/estado`, { estado }).pipe(map(r => r.data));
   }
 
-  // Comunicados
+  eliminarIncidencia(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.baseUrl}/incidencias/${id}`).pipe(map(r => r.data));
+  }
+
+  agregarComentarioIncidencia(id: number, comentario: string): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/incidencias/${id}/comentarios`, { comentario }).pipe(map(r => r.data));
+  }
+
+  // Comunicados y Eventos
   getComunicados(): Observable<any> {
     return this.http.get<any>(`${this.baseUrl}/comunicados`).pipe(map(r => r.data));
   }
 
   publicarComunicado(data: any): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/comunicados`, data).pipe(map(r => r.data));
+  }
+
+  eliminarComunicado(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.baseUrl}/comunicados/${id}`).pipe(map(r => r.data));
+  }
+
+  // Generación Expensas
+  generarExpensasMasivas(data: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/finanzas/expensas/generar`, data).pipe(map(r => r.data));
+  }
+
+  // Gobernanza y Asambleas (Encuestas)
+  getEncuestas(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/encuestas`).pipe(map(r => r.data));
+  }
+
+  crearEncuesta(data: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/encuestas`, data).pipe(map(r => r.data));
+  }
+
+  votarEncuesta(data: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/encuestas/votar`, data).pipe(map(r => r.data));
+  }
+
+  cerrarEncuesta(id: number): Observable<any> {
+    return this.http.patch<any>(`${this.baseUrl}/encuestas/${id}/cerrar`, {}).pipe(map(r => r.data));
+  }
+
+  eliminarEncuesta(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.baseUrl}/encuestas/${id}`).pipe(map(r => r.data));
   }
 }

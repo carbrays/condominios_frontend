@@ -25,7 +25,14 @@ export class SocketService {
 
     this.socket = io(this.serverUrl, {
       auth: { token },
-      transports: ['websocket']
+      transports: ['websocket', 'polling'],
+      reconnectionAttempts: 3,
+      timeout: 5000,
+      autoConnect: true
+    });
+
+    this.socket.on('connect_error', (err) => {
+      // Evitar spam en consola si el backend está apagado
     });
 
     this.socket.on('connect', () => {
